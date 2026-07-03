@@ -2,6 +2,7 @@ import React from "react";
 import { createRoot } from "react-dom/client";
 import EquationMinuteLevelTwoWidget from "./equation-minute-level-two-widget.jsx";
 import LinearEquationsWidget from "./linear-equations-widget.jsx";
+import { REVISION_HTML, REVISION_STYLE } from "./revision-page-content.js";
 import TrigRatioWidget from "./trig-ratio-widget.jsx";
 import TwoStepEquationsWidget from "./two-step-equations-widget.jsx";
 
@@ -84,36 +85,7 @@ function Preview({ slug }) {
 }
 
 function Hub() {
-  return (
-    <main className="hub-root">
-      <section className="hub-hero">
-        <div>
-          <h1>Year 12 Revision Interactives</h1>
-          <p>Four maths practice tools, built for quick revision sessions.</p>
-        </div>
-        <div className="hub-count" aria-label="4 interactives">
-          <span>04</span>
-          <strong>interactives</strong>
-        </div>
-      </section>
-
-      <section className="interactive-list" aria-label="Revision interactives">
-        {INTERACTIVES.map((interactive, index) => (
-          <a className="interactive-card" href={`#/${interactive.slug}`} key={interactive.slug}>
-            <div className="card-number">{String(index + 1).padStart(2, "0")}</div>
-            <Preview slug={interactive.slug} />
-            <div className="card-copy">
-              <div className="card-topic">{interactive.topic}</div>
-              <h2>{interactive.title}</h2>
-              <p>{interactive.summary}</p>
-              <span>{interactive.details}</span>
-            </div>
-            <div className="card-action">Open</div>
-          </a>
-        ))}
-      </section>
-    </main>
-  );
+  return <div dangerouslySetInnerHTML={{ __html: REVISION_HTML }} />;
 }
 
 function Player({ interactive }) {
@@ -501,6 +473,51 @@ a {
   );
 }
 
+function RevisionStyle() {
+  return <style>{REVISION_STYLE}</style>;
+}
+
+function PlayerStyle() {
+  return (
+    <style>{`
+.player-root {
+  min-height: 100vh;
+  background: #ffffff;
+}
+
+.player-bar {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  min-height: 54px;
+  padding: 0 18px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.13);
+  background: #ffffff;
+  font-family: Lato, "Helvetica Neue", Arial, Helvetica, sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.player-bar a {
+  color: #0077b6;
+  text-decoration: none;
+}
+
+.player-bar span {
+  min-width: 0;
+  overflow: hidden;
+  color: rgba(0, 0, 0, 0.6);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+`}</style>
+  );
+}
+
 function App() {
   const [slug, setSlug] = React.useState(getSlugFromHash);
   const activeInteractive = INTERACTIVES.find((interactive) => interactive.slug === slug);
@@ -514,12 +531,19 @@ function App() {
   React.useEffect(() => {
     document.title = activeInteractive
       ? `${activeInteractive.title} | Year 12 Revision`
-      : "Year 12 Revision Interactives";
+      : "Revision Hub: Chapters 3, 6 and 8";
   }, [activeInteractive]);
+
+  React.useEffect(() => {
+    if (activeInteractive || !slug || window.location.hash.startsWith("#/")) return;
+    window.setTimeout(() => {
+      document.getElementById(slug)?.scrollIntoView();
+    }, 0);
+  }, [activeInteractive, slug]);
 
   return (
     <>
-      <HubStyle />
+      {activeInteractive ? <PlayerStyle /> : <RevisionStyle />}
       {activeInteractive ? <Player interactive={activeInteractive} /> : <Hub />}
     </>
   );
