@@ -3,6 +3,7 @@ import { createRoot } from "react-dom/client";
 import EquationMinuteLevelTwoWidget from "./equation-minute-level-two-widget.jsx";
 import LinearEquationsWidget from "./linear-equations-widget.jsx";
 import { REVISION_HTML, REVISION_STYLE } from "./revision-page-content.js";
+import TriangleMethodWidget from "./triangle-method-widget.jsx";
 import TrigRatioWidget from "./trig-ratio-widget.jsx";
 import TwoStepEquationsWidget from "./two-step-equations-widget.jsx";
 
@@ -39,6 +40,14 @@ const INTERACTIVES = [
     details: "Answers marked to one decimal place.",
     Component: TrigRatioWidget,
   },
+  {
+    slug: "triangle-methods",
+    title: "Triangle Methods",
+    topic: "Trigonometry",
+    summary: "Answer as many formula-choice questions as possible in two minutes.",
+    details: "Pythagoras, SOH CAH TOA, sine rule, cosine rule, and area.",
+    Component: TriangleMethodWidget,
+  },
 ];
 
 function getSlugFromHash() {
@@ -63,6 +72,15 @@ function Preview({ slug }) {
       <div className="preview preview-trig" aria-hidden="true">
         <span className="triangle" />
         <span className="ratio">tan 42 = x/9</span>
+      </div>
+    );
+  }
+
+  if (slug === "triangle-methods") {
+    return (
+      <div className="preview preview-trig" aria-hidden="true">
+        <span className="triangle" />
+        <span className="ratio">a² = b² + c² − 2bc cos A</span>
       </div>
     );
   }

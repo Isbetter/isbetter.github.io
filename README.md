@@ -6,6 +6,7 @@ A static Vite site that hosts the revision interactives in this folder:
 - Equation Minute Level Two
 - Linear Equations
 - Trig Ratios
+- Triangle Methods
 
 ## Local development
 
