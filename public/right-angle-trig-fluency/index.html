@@ -3,18 +3,25 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Right-Angled Trig: Choose the Rule</title>
+  <title>Trig Rule Minute - Right-Angled Triangles</title>
   <style>
+    @import url("https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,600;1,9..144,500&family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,500;12..96,700&family=JetBrains+Mono:wght@400;600;700;800&display=swap");
+
     :root {
-      --paper: #ffffff;
-      --ground: #f7f7f8;
-      --ink: #111111;
-      --muted: #5e5e5e;
-      --line: #cfcfd2;
-      --red: #e4002b;
-      --red-soft: #fff0f3;
-      --green: #176b45;
-      --green-soft: #edf8f2;
+      --paper: #f3ead8;
+      --paper2: #ece0c9;
+      --card: #fbf5e9;
+      --ink: #241509;
+      --ink-soft: #7a6a55;
+      --line: #d8c8aa;
+      --red: #c9401c;
+      --red-deep: #a8330f;
+      --red-tint: #fbe2da;
+      --teal: #0e6b66;
+      --gold: #e0a12b;
+      --gold-tint: #fbe9c2;
+      --green: #2e7d32;
+      --green-tint: #e1f0dc;
     }
 
     * { box-sizing: border-box; }
@@ -22,205 +29,318 @@
     html {
       min-width: 320px;
       min-height: 100%;
-      background: var(--ground);
+      background: var(--paper);
     }
 
     body {
       min-height: 100vh;
       margin: 0;
       color: var(--ink);
-      background:
-        linear-gradient(90deg, transparent 0 31px, rgba(228, 0, 43, .12) 31px 32px, transparent 32px),
-        var(--ground);
-      font-family: "Helvetica Neue", Helvetica, sans-serif;
-    }
-
-    button { font: inherit; }
-
-    .page {
-      width: min(980px, calc(100% - 32px));
-      min-height: 100vh;
-      margin: 0 auto;
-      padding: 32px 0 56px;
       background: var(--paper);
-      border-inline: 1px solid var(--line);
+      font-family: "Bricolage Grotesque", sans-serif;
     }
 
-    header {
-      display: grid;
-      grid-template-columns: 1fr auto;
-      gap: 24px;
-      align-items: end;
-      padding: 0 32px 26px;
-      border-bottom: 1px solid var(--ink);
+    button, input { font: inherit; }
+    button { touch-action: manipulation; }
+
+    .app {
+      position: relative;
+      min-height: 100vh;
+      overflow: hidden;
+      padding: 28px 16px 42px;
+    }
+
+    .grid-bg {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      opacity: .5;
+      background-image:
+        linear-gradient(var(--line) 1px, transparent 1px),
+        linear-gradient(90deg, var(--line) 1px, transparent 1px);
+      background-size: 26px 26px;
+      mask-image: radial-gradient(circle at 50% 22%, #000 0%, transparent 78%);
+      -webkit-mask-image: radial-gradient(circle at 50% 22%, #000 0%, transparent 78%);
+    }
+
+    .card {
+      position: relative;
+      width: 100%;
+      max-width: 560px;
+      margin: 0 auto;
+      padding: 22px 24px 28px;
+      border: 2px solid var(--ink);
+      border-radius: 6px;
+      background: var(--card);
+      box-shadow: 7px 8px 0 var(--ink);
+      animation: riseIn 450ms ease both;
+      transition: max-width .25s ease;
+    }
+
+    .card.is-running { max-width: 900px; }
+
+    .widget-header {
+      padding-bottom: 16px;
+      border-bottom: 2px solid var(--ink);
     }
 
     h1 {
-      max-width: 620px;
       margin: 0;
-      font-size: clamp(34px, 7vw, 68px);
-      line-height: .94;
-      letter-spacing: -.045em;
+      font-family: "Fraunces", serif;
+      font-size: clamp(29px, 6vw, 43px);
+      font-weight: 600;
+      line-height: 1.03;
+      letter-spacing: -.025em;
     }
 
-    .header-mark {
-      width: 92px;
-      padding-top: 9px;
-      border-top: 8px solid var(--red);
-      color: var(--muted);
+    .subtitle {
+      margin: 7px 0 0;
+      color: var(--ink-soft);
       font-size: 14px;
-      font-weight: 700;
-      line-height: 1.3;
-      text-align: right;
+      font-weight: 500;
+      line-height: 1.4;
     }
 
-    .intro,
-    .quiz,
-    .results {
-      padding: 28px 32px 0;
+    .home { padding-top: 18px; }
+
+    .result-banner {
+      display: none;
+      margin-bottom: 16px;
+      padding: 13px 14px;
+      border: 2px solid var(--green);
+      border-radius: 5px;
+      background: var(--green-tint);
+      color: var(--green);
+      font-family: "Fraunces", serif;
+      font-size: 20px;
+      font-weight: 600;
+      animation: popIn 380ms ease both;
     }
 
-    .intro p {
-      max-width: 680px;
-      margin: 0;
-      color: #343434;
-      font-size: 18px;
-      line-height: 1.5;
+    .result-banner.is-visible {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
     }
 
-    .forms {
-      display: grid;
-      grid-template-columns: repeat(5, minmax(0, 1fr));
-      margin: 28px 0;
-      border: 1px solid var(--ink);
-      border-right: 0;
+    .new-best {
+      display: none;
+      padding: 4px 7px;
+      border: 1px solid var(--green);
+      border-radius: 4px;
+      font-family: "Bricolage Grotesque", sans-serif;
+      font-size: 12px;
+      white-space: nowrap;
     }
 
-    .form-item {
-      min-height: 116px;
-      padding: 14px 12px;
-      border-right: 1px solid var(--ink);
-    }
+    .new-best.is-visible { display: inline-block; }
 
-    .form-item strong {
-      display: block;
-      margin-bottom: 20px;
-      color: var(--red);
-      font-size: 28px;
-      line-height: 1;
-    }
-
-    .form-item span {
-      font-size: 13px;
-      line-height: 1.35;
-    }
-
-    .primary,
-    .secondary,
-    .choice {
-      border: 1px solid var(--ink);
-      border-radius: 7px;
-      background: var(--paper);
-      color: var(--ink);
+    .timer-toggle {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      width: 100%;
+      min-height: 52px;
+      padding: 10px 12px;
+      border: 2px solid var(--ink);
+      border-radius: 5px;
+      background: var(--paper2);
       cursor: pointer;
-      transition: background-color 140ms ease, color 140ms ease, border-color 140ms ease;
     }
 
-    .primary {
-      min-width: 190px;
-      padding: 13px 18px;
-      background: var(--red);
-      color: var(--paper);
+    .timer-toggle span {
+      display: flex;
+      align-items: center;
+      gap: 10px;
       font-weight: 700;
     }
 
-    .primary:hover,
-    .primary:focus-visible {
-      background: #b80023;
+    .timer-toggle input {
+      width: 20px;
+      height: 20px;
+      margin: 0;
+      accent-color: var(--red);
     }
 
-    .secondary {
-      padding: 12px 16px;
+    .timer-toggle strong {
+      color: var(--ink-soft);
+      font-family: "JetBrains Mono", monospace;
+      font-size: 13px;
+    }
+
+    .button {
+      min-height: 48px;
+      border: 2px solid var(--ink);
+      border-radius: 5px;
+      cursor: pointer;
       font-weight: 700;
     }
 
-    button:focus-visible {
-      outline: 3px solid var(--red);
+    .button:focus-visible,
+    .choice:focus-visible,
+    .timer-toggle:focus-within {
+      outline: 3px solid var(--gold);
       outline-offset: 3px;
     }
 
-    .quiz,
-    .results { display: none; }
+    .start-button {
+      width: 100%;
+      margin-top: 13px;
+      background: var(--red);
+      color: var(--card);
+      box-shadow: 4px 4px 0 var(--ink);
+    }
 
-    .quiz.is-active,
-    .results.is-active { display: block; }
+    .start-button:hover { background: var(--red-deep); }
 
-    .intro.is-hidden { display: none; }
-
-    .progress-line {
+    .stats {
       display: grid;
-      grid-template-columns: auto 1fr auto;
-      gap: 14px;
-      align-items: center;
-      padding-bottom: 18px;
-      border-bottom: 1px solid var(--line);
-      color: var(--muted);
-      font-size: 14px;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 9px;
+      margin-top: 20px;
+    }
+
+    .stat {
+      min-height: 76px;
+      padding: 11px;
+      border: 1px solid var(--line);
+      border-top: 4px solid var(--stat-color);
+      border-radius: 4px;
+      background: var(--paper);
+      animation: popIn 420ms ease both;
+    }
+
+    .stat span,
+    .stat strong { display: block; }
+
+    .stat span {
+      color: var(--ink-soft);
+      font-size: 12px;
       font-weight: 700;
     }
 
-    .progress-track {
-      height: 5px;
-      background: #e5e5e7;
+    .stat strong {
+      margin-top: 7px;
+      font-family: "JetBrains Mono", monospace;
+      font-size: 22px;
+      font-weight: 800;
+      font-variant-numeric: tabular-nums;
     }
 
-    .progress-fill {
-      width: 0;
-      height: 100%;
-      background: var(--red);
-      transition: width 180ms ease;
+    .tagline {
+      margin: 18px 2px 0;
+      color: var(--ink-soft);
+      font-size: 13px;
+      line-height: 1.5;
     }
 
-    .question-grid {
-      display: grid;
-      grid-template-columns: minmax(0, 1.2fr) minmax(280px, .8fr);
-      gap: 28px;
-      padding-top: 26px;
+    .running { display: none; }
+    .running.is-active { display: block; }
+    .home.is-hidden { display: none; }
+
+    .topbar {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 16px;
+      padding-top: 17px;
     }
 
-    .question-number {
-      color: var(--red);
-      font-size: 15px;
+    .mode-value {
+      font-family: "JetBrains Mono", monospace;
+      font-size: 25px;
+      font-weight: 800;
+      line-height: 1;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .mode-label {
+      margin-top: 4px;
+      color: var(--ink-soft);
+      font-size: 11px;
+      font-weight: 700;
+    }
+
+    .run-score { text-align: right; }
+
+    .solved {
+      font-family: "JetBrains Mono", monospace;
+      font-size: 17px;
+      font-weight: 800;
+    }
+
+    .run-counts {
+      display: flex;
+      gap: 6px;
+      justify-content: flex-end;
+      margin-top: 7px;
+    }
+
+    .run-counts span {
+      padding: 4px 7px;
+      border: 1px solid var(--line);
+      border-radius: 4px;
+      background: var(--paper2);
+      color: var(--ink-soft);
+      font-family: "JetBrains Mono", monospace;
+      font-size: 11px;
+      font-weight: 700;
+    }
+
+    .stage {
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+      margin-top: 18px;
+    }
+
+    .left { min-width: 0; }
+    .right { flex: none; }
+
+    .question-wrap {
+      animation: qIn 300ms ease both;
+    }
+
+    .type-tag {
+      margin: 0 0 10px;
+      color: var(--red-deep);
+      font-size: 12px;
       font-weight: 700;
     }
 
     h2 {
-      margin: 9px 0 0;
-      font-size: clamp(25px, 4vw, 38px);
-      line-height: 1.08;
-      letter-spacing: -.025em;
+      margin: 0;
+      font-family: "JetBrains Mono", monospace;
+      font-size: clamp(21px, 4.5vw, 31px);
+      line-height: 1.18;
+      text-align: center;
     }
 
     .instruction {
-      margin: 12px 0 0;
-      color: var(--muted);
-      font-size: 15px;
-      line-height: 1.45;
+      min-height: 38px;
+      margin: 8px auto 0;
+      color: var(--ink-soft);
+      font-size: 13px;
+      line-height: 1.4;
+      text-align: center;
     }
 
     .diagram-frame {
       display: grid;
       place-items: center;
-      min-height: 290px;
-      margin-top: 24px;
-      padding: 16px;
-      border-block: 1px solid var(--line);
-      background: var(--ground);
+      min-height: 240px;
+      margin-top: 10px;
+      padding: 10px;
+      border: 2px solid var(--ink);
+      border-radius: 5px;
+      background: var(--paper);
     }
 
     svg.triangle {
       display: block;
-      width: min(100%, 420px);
+      width: min(100%, 410px);
       height: auto;
       overflow: visible;
     }
@@ -228,13 +348,12 @@
     .tri-side {
       fill: none;
       stroke: var(--ink);
-      stroke-width: 4;
+      stroke-width: 5;
       stroke-linecap: round;
       stroke-linejoin: round;
     }
 
-    .tri-square,
-    .tri-arc {
+    .tri-square, .tri-arc {
       fill: none;
       stroke: var(--ink);
       stroke-width: 2;
@@ -242,258 +361,225 @@
 
     .tri-label {
       fill: var(--ink);
-      font-family: "Helvetica Neue", Helvetica, sans-serif;
-      font-size: 18px;
-      font-weight: 700;
+      font-family: "JetBrains Mono", monospace;
+      font-size: 17px;
+      font-weight: 800;
       text-anchor: middle;
     }
 
     .tri-angle {
       fill: var(--red);
-      font-family: "Helvetica Neue", Helvetica, sans-serif;
-      font-size: 20px;
-      font-weight: 700;
+      font-family: "JetBrains Mono", monospace;
+      font-size: 19px;
+      font-weight: 800;
       text-anchor: middle;
     }
 
     .tri-target {
-      stroke: var(--red);
-      stroke-width: 8;
+      stroke: var(--gold);
+      stroke-width: 10;
       stroke-linecap: round;
-      opacity: .72;
+      opacity: .82;
     }
 
-    .answers {
-      align-self: start;
+    .choices {
       display: grid;
-      gap: 10px;
-      padding-top: 32px;
+      gap: 8px;
     }
 
     .choice {
       width: 100%;
       min-height: 52px;
-      padding: 12px 14px;
+      padding: 10px 12px;
+      border: 2px solid var(--ink);
+      border-radius: 5px;
+      background: var(--paper2);
+      color: var(--ink);
+      cursor: pointer;
+      font-family: "JetBrains Mono", monospace;
+      font-weight: 800;
       text-align: left;
-      font-weight: 700;
     }
 
-    .choice:hover:not(:disabled) {
-      border-color: var(--red);
-      background: var(--red-soft);
-    }
-
+    .choice:hover:not(:disabled) { background: var(--gold-tint); }
     .choice:disabled { cursor: default; }
-
-    .choice.is-correct {
-      border-color: var(--green);
-      background: var(--green-soft);
-      color: var(--green);
-    }
-
-    .choice.is-wrong {
-      border-color: var(--red);
-      background: var(--red-soft);
-      color: var(--red);
-    }
+    .choice.is-selected { border-color: var(--gold); background: var(--gold-tint); }
 
     .choice.diagram-choice {
-      padding: 8px;
+      padding: 3px 7px;
       background: var(--paper);
     }
 
     .choice.diagram-choice svg {
       width: 100%;
-      max-height: 138px;
+      max-height: 125px;
     }
 
     .feedback {
-      min-height: 48px;
-      margin: 8px 0 0;
-      padding-top: 12px;
-      border-top: 1px solid var(--line);
-      font-size: 14px;
-      line-height: 1.45;
+      min-height: 58px;
+      margin-top: 9px;
     }
 
-    .feedback strong {
-      display: block;
-      margin-bottom: 3px;
+    .feedback-strip {
+      padding: 10px 11px;
+      border: 2px solid var(--red);
+      border-radius: 5px;
+      background: var(--red-tint);
+      animation: popIn 300ms ease both;
     }
 
-    .feedback.is-correct strong { color: var(--green); }
-    .feedback.is-wrong strong { color: var(--red); }
+    .feedback-strip span,
+    .feedback-strip strong { display: block; }
 
-    .next-row {
-      display: flex;
-      justify-content: flex-end;
-      margin-top: 14px;
-    }
-
-    .results {
-      text-align: left;
-    }
-
-    .result-score {
-      margin: 6px 0 22px;
-      color: var(--red);
-      font-size: clamp(62px, 14vw, 128px);
+    .feedback-strip span {
+      color: var(--ink-soft);
+      font-size: 11px;
       font-weight: 700;
-      line-height: .9;
-      letter-spacing: -.06em;
     }
 
-    .results p {
-      max-width: 620px;
-      color: #343434;
-      font-size: 18px;
-      line-height: 1.5;
+    .feedback-strip strong {
+      margin-top: 2px;
+      color: var(--red-deep);
+      font-family: "JetBrains Mono", monospace;
+      font-size: 15px;
     }
 
-    .breakdown {
-      display: grid;
-      grid-template-columns: repeat(5, minmax(0, 1fr));
-      margin: 28px 0;
-      border: 1px solid var(--ink);
-      border-right: 0;
-    }
-
-    .breakdown div {
-      padding: 14px 12px;
-      border-right: 1px solid var(--ink);
-    }
-
-    .breakdown span,
-    .breakdown strong { display: block; }
-
-    .breakdown span {
-      min-height: 34px;
-      color: var(--muted);
-      font-size: 12px;
-      line-height: 1.3;
-    }
-
-    .breakdown strong {
-      margin-top: 8px;
-      font-size: 24px;
-    }
-
-    .sr-only {
-      position: absolute;
-      width: 1px;
-      height: 1px;
-      padding: 0;
-      margin: -1px;
-      overflow: hidden;
-      clip: rect(0, 0, 0, 0);
-      white-space: nowrap;
+    .home-link {
+      width: 100%;
+      min-height: 42px;
+      margin-top: 4px;
       border: 0;
+      background: transparent;
+      color: var(--ink-soft);
+      cursor: pointer;
+      font-weight: 700;
+      text-decoration: underline;
     }
 
-    @media (max-width: 760px) {
-      .page {
-        width: calc(100% - 16px);
-        padding-top: 22px;
+    @keyframes riseIn {
+      from { opacity: 0; transform: translateY(14px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes qIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes popIn {
+      from { opacity: 0; transform: scale(.97); }
+      to { opacity: 1; transform: scale(1); }
+    }
+
+    @media (min-width: 760px) {
+      .app { padding-top: 38px; }
+      .stage {
+        flex-direction: row;
+        align-items: flex-start;
+        gap: 28px;
       }
-
-      header {
-        grid-template-columns: 1fr;
-        padding-inline: 20px;
+      .left { flex: 1 1 0; }
+      .right {
+        position: sticky;
+        top: 14px;
+        flex: 0 0 318px;
       }
+    }
 
-      .header-mark { text-align: left; }
+    @media (max-width: 480px) {
+      .app { padding: 12px 10px 28px; }
+      .card { padding: 18px 15px 22px; box-shadow: 5px 6px 0 var(--ink); }
+      .topbar { gap: 8px; }
+      .mode-value { font-size: 21px; }
+      .run-counts { flex-wrap: wrap; }
+      .diagram-frame { min-height: 205px; }
+    }
 
-      .intro,
-      .quiz,
-      .results { padding-inline: 20px; }
-
-      .forms,
-      .breakdown {
-        grid-template-columns: 1fr;
-        border-bottom: 0;
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 1ms !important;
+        transition-duration: 1ms !important;
       }
-
-      .form-item,
-      .breakdown div {
-        min-height: 0;
-        border-bottom: 1px solid var(--ink);
-      }
-
-      .form-item {
-        display: grid;
-        grid-template-columns: 44px 1fr;
-        align-items: start;
-      }
-
-      .form-item strong { margin: 0; }
-
-      .question-grid { grid-template-columns: 1fr; }
-      .answers { padding-top: 0; }
-      .diagram-frame { min-height: 230px; }
     }
   </style>
 </head>
 <body>
-  <main class="page">
-    <header>
-      <h1>Which right-angled trig rule?</h1>
-      <div class="header-mark">10 questions<br>5 forms</div>
-    </header>
+  <main class="app">
+    <div class="grid-bg" aria-hidden="true"></div>
+    <article class="card" id="card">
+      <header class="widget-header">
+        <h1>Trig Rule Minute - Right-Angled Triangles</h1>
+        <p class="subtitle">Timer optional - identify the rule - keep moving</p>
+      </header>
 
-    <section class="intro" id="intro">
-      <p>Use the marked angle to identify opposite, adjacent and hypotenuse, then choose the ratio that connects the information shown.</p>
-      <div class="forms" aria-label="Question forms">
-        <div class="form-item"><strong>1</strong><span>Choose sin, cos or tan</span></div>
-        <div class="form-item"><strong>2</strong><span>Name the unknown side</span></div>
-        <div class="form-item"><strong>3</strong><span>Select a side on the triangle</span></div>
-        <div class="form-item"><strong>4</strong><span>Select the missing angle</span></div>
-        <div class="form-item"><strong>5</strong><span>Match lengths to a diagram</span></div>
-      </div>
-      <button class="primary" id="start" type="button">Start fluency task</button>
-    </section>
-
-    <section class="quiz" id="quiz" aria-live="polite">
-      <div class="progress-line">
-        <span id="progressText">Question 1 of 10</span>
-        <div class="progress-track" aria-hidden="true"><div class="progress-fill" id="progressFill"></div></div>
-        <span id="scoreText">0 correct</span>
-      </div>
-      <div class="question-grid">
-        <div>
-          <div class="question-number" id="formLabel">Form 1</div>
-          <h2 id="prompt"></h2>
-          <p class="instruction" id="instruction"></p>
-          <div class="diagram-frame" id="diagram"></div>
+      <section class="home" id="home">
+        <div class="result-banner" id="resultBanner" role="status">
+          <span id="resultText"></span>
+          <span class="new-best" id="newBest">new best</span>
         </div>
-        <div class="answers">
-          <div id="choices"></div>
-          <div class="feedback" id="feedback" role="status"></div>
-          <div class="next-row">
-            <button class="primary" id="next" type="button" hidden>Next question</button>
+
+        <label class="timer-toggle">
+          <span><input type="checkbox" id="timerToggle"> Timer</span>
+          <strong id="timerValue">off</strong>
+        </label>
+
+        <button class="button start-button" id="startButton" type="button">Start practice</button>
+
+        <div class="stats" aria-label="Session statistics">
+          <div class="stat" style="--stat-color: var(--teal)"><span>Best minute</span><strong id="bestStat">-</strong></div>
+          <div class="stat" style="--stat-color: var(--gold)"><span>Recent minute</span><strong id="recentStat">-</strong></div>
+          <div class="stat" style="--stat-color: var(--green)"><span>Correct so far</span><strong id="correctStat">0</strong></div>
+          <div class="stat" style="--stat-color: var(--red-deep)"><span>Attempts</span><strong id="attemptStat">0</strong></div>
+        </div>
+
+        <p class="tagline">Leave the timer off for practice, or turn it on for a one-minute score. All five diagram question forms appear in each shuffled set.</p>
+      </section>
+
+      <section class="running" id="running" aria-live="polite">
+        <div class="topbar">
+          <div>
+            <div class="mode-value" id="modeValue">practice</div>
+            <div class="mode-label" id="modeLabel">timer off</div>
+          </div>
+          <div class="run-score">
+            <div class="solved" id="solved">Solved 0</div>
+            <div class="run-counts">
+              <span id="misses">Misses 0</span>
+              <span id="answered">Answered 0</span>
+            </div>
           </div>
         </div>
-      </div>
-    </section>
 
-    <section class="results" id="results">
-      <div class="question-number">Completed</div>
-      <div class="result-score" id="resultScore">0/10</div>
-      <p id="resultMessage"></p>
-      <div class="breakdown" id="breakdown"></div>
-      <button class="primary" id="restart" type="button">Try another set</button>
-    </section>
+        <div class="stage">
+          <div class="left">
+            <div class="question-wrap" id="questionWrap">
+              <p class="type-tag" id="typeTag"></p>
+              <h2 id="prompt"></h2>
+              <p class="instruction" id="instruction"></p>
+              <div class="diagram-frame" id="diagram"></div>
+            </div>
+          </div>
+          <div class="right">
+            <div class="choices" id="choices"></div>
+            <div class="feedback" id="feedback" role="status"></div>
+            <button class="home-link" id="homeButton" type="button">Home</button>
+          </div>
+        </div>
+      </section>
+    </article>
   </main>
 
   <script>
     (() => {
+      const RUN_MS = 60000;
+      const FEEDBACK_MS = 560;
       const FORMS = [
-        "Choose the ratio",
-        "Name the side",
-        "Select the side",
-        "Select the angle",
-        "Match the diagram"
+        "choose sin, cos or tan",
+        "name the unknown side",
+        "select a side on the triangle",
+        "select the missing angle",
+        "match lengths to a diagram"
       ];
-      const POINTS = { L: [74, 226], R: [350, 226], T: [74, 46] };
       const SIDE_LABELS = {
         vertical: [45, 139],
         base: [212, 253],
@@ -505,14 +591,26 @@
       };
 
       const state = {
-        questions: [],
-        index: 0,
-        score: 0,
-        answered: false,
-        byForm: [0, 0, 0, 0, 0]
+        timerEnabled: false,
+        runTimed: false,
+        phase: "home",
+        queue: [],
+        question: null,
+        currentCorrect: 0,
+        currentMisses: 0,
+        totalCorrect: 0,
+        totalAttempts: 0,
+        bestScore: null,
+        recentScore: null,
+        startTime: 0,
+        elapsed: 0,
+        raf: null,
+        advanceTimer: null,
+        locked: false
       };
 
       const el = (id) => document.getElementById(id);
+      const pick = (items) => items[Math.floor(Math.random() * items.length)];
       const shuffle = (items) => {
         const copy = [...items];
         for (let i = copy.length - 1; i > 0; i -= 1) {
@@ -521,7 +619,6 @@
         }
         return copy;
       };
-      const pick = (items) => items[Math.floor(Math.random() * items.length)];
 
       function roles(angle) {
         return angle === "L"
@@ -542,7 +639,7 @@
         return [74, 46, 350, 226];
       }
 
-      function triangleSvg({ angle = "L", labels = {}, target = null, compact = false } = {}) {
+      function triangleSvg({ angle = "L", labels = {}, target = null, compact = false, showAngle = true } = {}) {
         const angleData = ANGLES[angle];
         const targetLine = target ? lineFor(target) : null;
         const labelMarkup = Object.entries(labels).map(([side, value]) => {
@@ -554,8 +651,8 @@
             ${targetLine ? `<line class="tri-target" x1="${targetLine[0]}" y1="${targetLine[1]}" x2="${targetLine[2]}" y2="${targetLine[3]}"></line>` : ""}
             <path class="tri-side" d="M 74 46 L 74 226 L 350 226 Z"></path>
             <path class="tri-square" d="M 74 205 L 95 205 L 95 226"></path>
-            <path class="tri-arc" d="${angleData.arc}"></path>
-            <text class="tri-angle" x="${angleData.theta[0]}" y="${angleData.theta[1]}">θ</text>
+            ${showAngle ? `<path class="tri-arc" d="${angleData.arc}"></path>
+            <text class="tri-angle" x="${angleData.theta[0]}" y="${angleData.theta[1]}">θ</text>` : ""}
             ${labelMarkup}
           </svg>`;
       }
@@ -564,19 +661,20 @@
         const angle = pick(["L", "T"]);
         const roleMap = roles(angle);
         const knownRole = pick(["opposite", "adjacent", "hypotenuse"]);
-        const unknownRole = pick(["opposite", "adjacent", "hypotenuse"].filter((r) => r !== knownRole));
-        const labels = {
-          [roleMap[knownRole]]: pick([5, 6, 8, 10, 12]),
-          [roleMap[unknownRole]]: "x"
-        };
+        const unknownRole = pick(["opposite", "adjacent", "hypotenuse"].filter((role) => role !== knownRole));
         return {
           form: 0,
           prompt: "Which trig ratio should you use?",
           instruction: "Use the two marked sides. Do not calculate x.",
-          diagram: triangleSvg({ angle, labels }),
+          diagram: triangleSvg({
+            angle,
+            labels: {
+              [roleMap[knownRole]]: pick([5, 6, 8, 10, 12]),
+              [roleMap[unknownRole]]: "x"
+            }
+          }),
           options: ["sin", "cos", "tan"].map((value) => ({ label: value, value })),
-          answer: ratioFor(knownRole, unknownRole),
-          explanation: `The marked sides are the ${knownRole} and ${unknownRole}, so use ${ratioFor(knownRole, unknownRole)}.`
+          answer: ratioFor(knownRole, unknownRole)
         };
       }
 
@@ -584,15 +682,13 @@
         const angle = pick(["L", "T"]);
         const roleMap = roles(angle);
         const answer = pick(["opposite", "adjacent", "hypotenuse"]);
-        const labels = { [roleMap[answer]]: "x" };
         return {
           form: 1,
           prompt: "What is the unknown side called?",
           instruction: "Name side x relative to the marked angle θ.",
-          diagram: triangleSvg({ angle, labels, target: roleMap[answer] }),
+          diagram: triangleSvg({ angle, labels: { [roleMap[answer]]: "x" }, target: roleMap[answer] }),
           options: ["opposite", "adjacent", "hypotenuse"].map((value) => ({ label: value, value })),
-          answer,
-          explanation: `Relative to θ, side x is the ${answer}.`
+          answer
         };
       }
 
@@ -600,20 +696,18 @@
         const angle = pick(["L", "T"]);
         const roleMap = roles(angle);
         const answerRole = pick(["opposite", "adjacent", "hypotenuse"]);
-        const sides = shuffle(["vertical", "base", "hypotenuse"]);
         return {
           form: 2,
           prompt: `Select the ${answerRole} side.`,
-          instruction: "Choose the diagram with the correct side highlighted in red.",
+          instruction: "Choose the diagram with the correct side highlighted.",
           diagram: triangleSvg({ angle }),
-          options: sides.map((side) => ({
+          options: shuffle(["vertical", "base", "hypotenuse"]).map((side) => ({
             label: triangleSvg({ angle, target: side, compact: true }),
             value: side,
             diagram: true,
             aria: `${side} side highlighted`
           })),
-          answer: roleMap[answerRole],
-          explanation: `That side is the ${answerRole} relative to θ.`
+          answer: roleMap[answerRole]
         };
       }
 
@@ -624,20 +718,18 @@
           ? (namedSide === "vertical" ? "L" : "T")
           : (namedSide === "vertical" ? "T" : "L");
         const labels = { [namedSide]: namedRole };
-        const optionData = shuffle(["L", "T"]);
         return {
           form: 3,
           prompt: "Where must angle θ be?",
-          instruction: `The labelled side is the ${namedRole}. Select the diagram that places θ correctly.`,
-          diagram: triangleSvg({ labels }),
-          options: optionData.map((angle) => ({
+          instruction: `The labelled side is the ${namedRole}. Select the correct angle position.`,
+          diagram: triangleSvg({ labels, showAngle: false }),
+          options: shuffle(["L", "T"]).map((angle) => ({
             label: triangleSvg({ angle, labels, compact: true }),
             value: angle,
             diagram: true,
             aria: `Angle theta at the ${angle === "L" ? "bottom-left" : "top-left"} corner`
           })),
-          answer,
-          explanation: `From that angle, the labelled side is the ${namedRole}.`
+          answer
         };
       }
 
@@ -648,69 +740,66 @@
           { opposite: 8, adjacent: 15, hypotenuse: 17 },
           { opposite: 7, adjacent: 24, hypotenuse: 25 }
         ]);
-        const correctAngle = pick(["L", "T"]);
-        const correctRoles = roles(correctAngle);
-        const correctLabels = Object.fromEntries(
-          Object.entries(correctRoles).map(([role, side]) => [side, lengths[role]])
-        );
-        const wrongOne = { ...correctLabels };
+        const angle = pick(["L", "T"]);
+        const roleMap = roles(angle);
+        const correct = Object.fromEntries(Object.entries(roleMap).map(([role, side]) => [side, lengths[role]]));
+        const wrongOne = { ...correct };
         [wrongOne.base, wrongOne.vertical] = [wrongOne.vertical, wrongOne.base];
-        const wrongTwo = { ...correctLabels };
+        const wrongTwo = { ...correct };
         [wrongTwo.hypotenuse, wrongTwo.base] = [wrongTwo.base, wrongTwo.hypotenuse];
-        const candidates = shuffle([
-          { value: "correct", svg: triangleSvg({ angle: correctAngle, labels: correctLabels, compact: true }) },
-          { value: "wrong-one", svg: triangleSvg({ angle: correctAngle, labels: wrongOne, compact: true }) },
-          { value: "wrong-two", svg: triangleSvg({ angle: correctAngle, labels: wrongTwo, compact: true }) }
-        ]);
         return {
           form: 4,
           prompt: "Which diagram matches these side lengths?",
           instruction: `Opposite = ${lengths.opposite}, adjacent = ${lengths.adjacent}, hypotenuse = ${lengths.hypotenuse}.`,
-          diagram: triangleSvg({ angle: correctAngle, labels: { vertical: "?", base: "?", hypotenuse: "?" } }),
-          options: candidates.map((item) => ({
-            label: item.svg,
-            value: item.value,
+          diagram: triangleSvg({ angle, labels: { vertical: "?", base: "?", hypotenuse: "?" } }),
+          options: shuffle([
+            { value: "correct", labels: correct },
+            { value: "wrong-one", labels: wrongOne },
+            { value: "wrong-two", labels: wrongTwo }
+          ]).map((option) => ({
+            label: triangleSvg({ angle, labels: option.labels, compact: true }),
+            value: option.value,
             diagram: true,
             aria: "Triangle diagram answer"
           })),
-          answer: "correct",
-          explanation: "The hypotenuse is opposite the right angle; opposite and adjacent are named from θ."
+          answer: "correct"
         };
       }
 
       const MAKERS = [makeForm1, makeForm2, makeForm3, makeForm4, makeForm5];
 
-      function makeSet() {
-        return shuffle([...MAKERS, ...MAKERS].map((maker) => maker()));
+      function refillQueue() {
+        state.queue = shuffle(MAKERS.map((maker) => maker()));
       }
 
-      function start() {
-        state.questions = makeSet();
-        state.index = 0;
-        state.score = 0;
-        state.answered = false;
-        state.byForm = [0, 0, 0, 0, 0];
-        el("intro").classList.add("is-hidden");
-        el("results").classList.remove("is-active");
-        el("quiz").classList.add("is-active");
-        renderQuestion();
-        window.scrollTo({ top: 0, behavior: "smooth" });
+      function drawQuestion() {
+        if (!state.queue.length) refillQueue();
+        state.question = state.queue.shift();
+      }
+
+      function updateHomeStats() {
+        el("bestStat").textContent = state.bestScore == null ? "-" : state.bestScore;
+        el("recentStat").textContent = state.recentScore == null ? "-" : state.recentScore;
+        el("correctStat").textContent = state.totalCorrect;
+        el("attemptStat").textContent = state.totalAttempts;
+      }
+
+      function updateRunStats() {
+        el("solved").textContent = `Solved ${state.currentCorrect}`;
+        el("misses").textContent = `Misses ${state.currentMisses}`;
+        el("answered").textContent = `Answered ${state.currentCorrect + state.currentMisses}`;
       }
 
       function renderQuestion() {
-        const q = state.questions[state.index];
-        state.answered = false;
-        el("progressText").textContent = `Question ${state.index + 1} of ${state.questions.length}`;
-        el("scoreText").textContent = `${state.score} correct`;
-        el("progressFill").style.width = `${(state.index / state.questions.length) * 100}%`;
-        el("formLabel").textContent = `Form ${q.form + 1} · ${FORMS[q.form]}`;
+        const q = state.question;
+        state.locked = false;
+        el("typeTag").textContent = `Form ${q.form + 1} - ${FORMS[q.form]}`;
         el("prompt").textContent = q.prompt;
         el("instruction").textContent = q.instruction;
         el("diagram").innerHTML = q.diagram;
-        el("feedback").className = "feedback";
         el("feedback").innerHTML = "";
-        el("next").hidden = true;
-        el("next").textContent = state.index === state.questions.length - 1 ? "See results" : "Next question";
+        el("questionWrap").style.animation = "none";
+        requestAnimationFrame(() => { el("questionWrap").style.animation = ""; });
 
         const choices = el("choices");
         choices.innerHTML = "";
@@ -725,60 +814,122 @@
           } else {
             button.textContent = option.label;
           }
-          button.addEventListener("click", () => answer(button, option.value));
+          button.addEventListener("pointerdown", (event) => {
+            event.preventDefault();
+            submitAnswer(button, option.value);
+          });
           choices.appendChild(button);
         });
         choices.querySelector("button")?.focus();
       }
 
-      function answer(button, value) {
-        if (state.answered) return;
-        state.answered = true;
-        const q = state.questions[state.index];
-        const correct = value === q.answer;
-        if (correct) {
-          state.score += 1;
-          state.byForm[q.form] += 1;
-        }
-        el("scoreText").textContent = `${state.score} correct`;
-        [...el("choices").querySelectorAll("button")].forEach((choice) => {
-          choice.disabled = true;
-          if (choice.dataset.value === q.answer) choice.classList.add("is-correct");
-        });
-        if (!correct) button.classList.add("is-wrong");
-        el("feedback").className = `feedback ${correct ? "is-correct" : "is-wrong"}`;
-        el("feedback").innerHTML = `<strong>${correct ? "Correct" : "Not quite"}</strong>${q.explanation}`;
-        el("next").hidden = false;
-        el("next").focus();
+      function clearRunTimers() {
+        if (state.raf) cancelAnimationFrame(state.raf);
+        if (state.advanceTimer) clearTimeout(state.advanceTimer);
+        state.raf = null;
+        state.advanceTimer = null;
       }
 
-      function next() {
-        if (!state.answered) return;
-        if (state.index < state.questions.length - 1) {
-          state.index += 1;
-          renderQuestion();
+      function start() {
+        clearRunTimers();
+        state.runTimed = state.timerEnabled;
+        state.phase = "running";
+        state.queue = [];
+        state.currentCorrect = 0;
+        state.currentMisses = 0;
+        state.elapsed = 0;
+        state.totalAttempts += 1;
+        state.startTime = performance.now();
+        drawQuestion();
+
+        el("home").classList.add("is-hidden");
+        el("running").classList.add("is-active");
+        el("card").classList.add("is-running");
+        el("modeValue").textContent = state.runTimed ? "1:00" : "practice";
+        el("modeLabel").textContent = state.runTimed ? "time left" : "timer off";
+        updateRunStats();
+        renderQuestion();
+        if (state.runTimed) tick();
+      }
+
+      function tick() {
+        if (state.phase !== "running" || !state.runTimed) return;
+        state.elapsed = performance.now() - state.startTime;
+        if (state.elapsed >= RUN_MS) {
+          finishTimedRun();
           return;
         }
-        finish();
+        const remaining = Math.max(0, RUN_MS - state.elapsed);
+        const totalSeconds = Math.ceil(remaining / 1000);
+        const minutes = Math.floor(totalSeconds / 60);
+        const seconds = totalSeconds % 60;
+        el("modeValue").textContent = `${minutes}:${String(seconds).padStart(2, "0")}`;
+        state.raf = requestAnimationFrame(tick);
       }
 
-      function finish() {
-        el("quiz").classList.remove("is-active");
-        el("results").classList.add("is-active");
-        el("resultScore").textContent = `${state.score}/${state.questions.length}`;
-        el("resultMessage").textContent = state.score >= 8
-          ? "Strong identification. You are ready to apply the ratios in calculations."
-          : "Repeat the set and use SOH–CAH–TOA only after naming the sides from θ.";
-        el("breakdown").innerHTML = FORMS.map((name, index) =>
-          `<div><span>Form ${index + 1}<br>${name}</span><strong>${state.byForm[index]}/2</strong></div>`
-        ).join("");
-        window.scrollTo({ top: 0, behavior: "smooth" });
-        el("restart").focus();
+      function submitAnswer(button, value) {
+        if (state.locked || state.phase !== "running") return;
+        if (state.runTimed && performance.now() - state.startTime >= RUN_MS) {
+          finishTimedRun();
+          return;
+        }
+        state.locked = true;
+        const correct = value === state.question.answer;
+        button.classList.add("is-selected");
+        [...el("choices").querySelectorAll("button")].forEach((choice) => { choice.disabled = true; });
+
+        if (correct) {
+          state.currentCorrect += 1;
+          state.totalCorrect += 1;
+          el("feedback").innerHTML = "";
+        } else {
+          state.currentMisses += 1;
+          el("feedback").innerHTML = '<div class="feedback-strip"><span>Answer marked</span><strong>Incorrect</strong></div>';
+        }
+        updateRunStats();
+
+        state.advanceTimer = window.setTimeout(() => {
+          state.advanceTimer = null;
+          if (state.runTimed && performance.now() - state.startTime >= RUN_MS) {
+            finishTimedRun();
+            return;
+          }
+          drawQuestion();
+          renderQuestion();
+        }, FEEDBACK_MS);
       }
 
-      el("start").addEventListener("click", start);
-      el("restart").addEventListener("click", start);
-      el("next").addEventListener("click", next);
+      function finishTimedRun() {
+        clearRunTimers();
+        state.phase = "home";
+        const score = state.currentCorrect;
+        const isBest = state.bestScore == null || score > state.bestScore;
+        state.recentScore = score;
+        if (isBest) state.bestScore = score;
+        showHome();
+        el("resultText").textContent = `${score} solved in one minute!`;
+        el("resultBanner").classList.add("is-visible");
+        el("newBest").classList.toggle("is-visible", isBest);
+      }
+
+      function showHome() {
+        clearRunTimers();
+        state.phase = "home";
+        el("running").classList.remove("is-active");
+        el("home").classList.remove("is-hidden");
+        el("card").classList.remove("is-running");
+        updateHomeStats();
+        el("startButton").focus();
+      }
+
+      el("timerToggle").addEventListener("change", (event) => {
+        state.timerEnabled = event.target.checked;
+        el("timerValue").textContent = state.timerEnabled ? "1 minute" : "off";
+        el("startButton").textContent = state.timerEnabled ? "Start 1 minute" : "Start practice";
+      });
+      el("startButton").addEventListener("click", start);
+      el("homeButton").addEventListener("click", showHome);
+      updateHomeStats();
     })();
   </script>
 </body>
