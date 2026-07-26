@@ -1,0 +1,785 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Right-Angled Trig: Choose the Rule</title>
+  <style>
+    :root {
+      --paper: #ffffff;
+      --ground: #f7f7f8;
+      --ink: #111111;
+      --muted: #5e5e5e;
+      --line: #cfcfd2;
+      --red: #e4002b;
+      --red-soft: #fff0f3;
+      --green: #176b45;
+      --green-soft: #edf8f2;
+    }
+
+    * { box-sizing: border-box; }
+
+    html {
+      min-width: 320px;
+      min-height: 100%;
+      background: var(--ground);
+    }
+
+    body {
+      min-height: 100vh;
+      margin: 0;
+      color: var(--ink);
+      background:
+        linear-gradient(90deg, transparent 0 31px, rgba(228, 0, 43, .12) 31px 32px, transparent 32px),
+        var(--ground);
+      font-family: "Helvetica Neue", Helvetica, sans-serif;
+    }
+
+    button { font: inherit; }
+
+    .page {
+      width: min(980px, calc(100% - 32px));
+      min-height: 100vh;
+      margin: 0 auto;
+      padding: 32px 0 56px;
+      background: var(--paper);
+      border-inline: 1px solid var(--line);
+    }
+
+    header {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 24px;
+      align-items: end;
+      padding: 0 32px 26px;
+      border-bottom: 1px solid var(--ink);
+    }
+
+    h1 {
+      max-width: 620px;
+      margin: 0;
+      font-size: clamp(34px, 7vw, 68px);
+      line-height: .94;
+      letter-spacing: -.045em;
+    }
+
+    .header-mark {
+      width: 92px;
+      padding-top: 9px;
+      border-top: 8px solid var(--red);
+      color: var(--muted);
+      font-size: 14px;
+      font-weight: 700;
+      line-height: 1.3;
+      text-align: right;
+    }
+
+    .intro,
+    .quiz,
+    .results {
+      padding: 28px 32px 0;
+    }
+
+    .intro p {
+      max-width: 680px;
+      margin: 0;
+      color: #343434;
+      font-size: 18px;
+      line-height: 1.5;
+    }
+
+    .forms {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      margin: 28px 0;
+      border: 1px solid var(--ink);
+      border-right: 0;
+    }
+
+    .form-item {
+      min-height: 116px;
+      padding: 14px 12px;
+      border-right: 1px solid var(--ink);
+    }
+
+    .form-item strong {
+      display: block;
+      margin-bottom: 20px;
+      color: var(--red);
+      font-size: 28px;
+      line-height: 1;
+    }
+
+    .form-item span {
+      font-size: 13px;
+      line-height: 1.35;
+    }
+
+    .primary,
+    .secondary,
+    .choice {
+      border: 1px solid var(--ink);
+      border-radius: 7px;
+      background: var(--paper);
+      color: var(--ink);
+      cursor: pointer;
+      transition: background-color 140ms ease, color 140ms ease, border-color 140ms ease;
+    }
+
+    .primary {
+      min-width: 190px;
+      padding: 13px 18px;
+      background: var(--red);
+      color: var(--paper);
+      font-weight: 700;
+    }
+
+    .primary:hover,
+    .primary:focus-visible {
+      background: #b80023;
+    }
+
+    .secondary {
+      padding: 12px 16px;
+      font-weight: 700;
+    }
+
+    button:focus-visible {
+      outline: 3px solid var(--red);
+      outline-offset: 3px;
+    }
+
+    .quiz,
+    .results { display: none; }
+
+    .quiz.is-active,
+    .results.is-active { display: block; }
+
+    .intro.is-hidden { display: none; }
+
+    .progress-line {
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      gap: 14px;
+      align-items: center;
+      padding-bottom: 18px;
+      border-bottom: 1px solid var(--line);
+      color: var(--muted);
+      font-size: 14px;
+      font-weight: 700;
+    }
+
+    .progress-track {
+      height: 5px;
+      background: #e5e5e7;
+    }
+
+    .progress-fill {
+      width: 0;
+      height: 100%;
+      background: var(--red);
+      transition: width 180ms ease;
+    }
+
+    .question-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.2fr) minmax(280px, .8fr);
+      gap: 28px;
+      padding-top: 26px;
+    }
+
+    .question-number {
+      color: var(--red);
+      font-size: 15px;
+      font-weight: 700;
+    }
+
+    h2 {
+      margin: 9px 0 0;
+      font-size: clamp(25px, 4vw, 38px);
+      line-height: 1.08;
+      letter-spacing: -.025em;
+    }
+
+    .instruction {
+      margin: 12px 0 0;
+      color: var(--muted);
+      font-size: 15px;
+      line-height: 1.45;
+    }
+
+    .diagram-frame {
+      display: grid;
+      place-items: center;
+      min-height: 290px;
+      margin-top: 24px;
+      padding: 16px;
+      border-block: 1px solid var(--line);
+      background: var(--ground);
+    }
+
+    svg.triangle {
+      display: block;
+      width: min(100%, 420px);
+      height: auto;
+      overflow: visible;
+    }
+
+    .tri-side {
+      fill: none;
+      stroke: var(--ink);
+      stroke-width: 4;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    .tri-square,
+    .tri-arc {
+      fill: none;
+      stroke: var(--ink);
+      stroke-width: 2;
+    }
+
+    .tri-label {
+      fill: var(--ink);
+      font-family: "Helvetica Neue", Helvetica, sans-serif;
+      font-size: 18px;
+      font-weight: 700;
+      text-anchor: middle;
+    }
+
+    .tri-angle {
+      fill: var(--red);
+      font-family: "Helvetica Neue", Helvetica, sans-serif;
+      font-size: 20px;
+      font-weight: 700;
+      text-anchor: middle;
+    }
+
+    .tri-target {
+      stroke: var(--red);
+      stroke-width: 8;
+      stroke-linecap: round;
+      opacity: .72;
+    }
+
+    .answers {
+      align-self: start;
+      display: grid;
+      gap: 10px;
+      padding-top: 32px;
+    }
+
+    .choice {
+      width: 100%;
+      min-height: 52px;
+      padding: 12px 14px;
+      text-align: left;
+      font-weight: 700;
+    }
+
+    .choice:hover:not(:disabled) {
+      border-color: var(--red);
+      background: var(--red-soft);
+    }
+
+    .choice:disabled { cursor: default; }
+
+    .choice.is-correct {
+      border-color: var(--green);
+      background: var(--green-soft);
+      color: var(--green);
+    }
+
+    .choice.is-wrong {
+      border-color: var(--red);
+      background: var(--red-soft);
+      color: var(--red);
+    }
+
+    .choice.diagram-choice {
+      padding: 8px;
+      background: var(--paper);
+    }
+
+    .choice.diagram-choice svg {
+      width: 100%;
+      max-height: 138px;
+    }
+
+    .feedback {
+      min-height: 48px;
+      margin: 8px 0 0;
+      padding-top: 12px;
+      border-top: 1px solid var(--line);
+      font-size: 14px;
+      line-height: 1.45;
+    }
+
+    .feedback strong {
+      display: block;
+      margin-bottom: 3px;
+    }
+
+    .feedback.is-correct strong { color: var(--green); }
+    .feedback.is-wrong strong { color: var(--red); }
+
+    .next-row {
+      display: flex;
+      justify-content: flex-end;
+      margin-top: 14px;
+    }
+
+    .results {
+      text-align: left;
+    }
+
+    .result-score {
+      margin: 6px 0 22px;
+      color: var(--red);
+      font-size: clamp(62px, 14vw, 128px);
+      font-weight: 700;
+      line-height: .9;
+      letter-spacing: -.06em;
+    }
+
+    .results p {
+      max-width: 620px;
+      color: #343434;
+      font-size: 18px;
+      line-height: 1.5;
+    }
+
+    .breakdown {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      margin: 28px 0;
+      border: 1px solid var(--ink);
+      border-right: 0;
+    }
+
+    .breakdown div {
+      padding: 14px 12px;
+      border-right: 1px solid var(--ink);
+    }
+
+    .breakdown span,
+    .breakdown strong { display: block; }
+
+    .breakdown span {
+      min-height: 34px;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.3;
+    }
+
+    .breakdown strong {
+      margin-top: 8px;
+      font-size: 24px;
+    }
+
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
+
+    @media (max-width: 760px) {
+      .page {
+        width: calc(100% - 16px);
+        padding-top: 22px;
+      }
+
+      header {
+        grid-template-columns: 1fr;
+        padding-inline: 20px;
+      }
+
+      .header-mark { text-align: left; }
+
+      .intro,
+      .quiz,
+      .results { padding-inline: 20px; }
+
+      .forms,
+      .breakdown {
+        grid-template-columns: 1fr;
+        border-bottom: 0;
+      }
+
+      .form-item,
+      .breakdown div {
+        min-height: 0;
+        border-bottom: 1px solid var(--ink);
+      }
+
+      .form-item {
+        display: grid;
+        grid-template-columns: 44px 1fr;
+        align-items: start;
+      }
+
+      .form-item strong { margin: 0; }
+
+      .question-grid { grid-template-columns: 1fr; }
+      .answers { padding-top: 0; }
+      .diagram-frame { min-height: 230px; }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header>
+      <h1>Which right-angled trig rule?</h1>
+      <div class="header-mark">10 questions<br>5 forms</div>
+    </header>
+
+    <section class="intro" id="intro">
+      <p>Use the marked angle to identify opposite, adjacent and hypotenuse, then choose the ratio that connects the information shown.</p>
+      <div class="forms" aria-label="Question forms">
+        <div class="form-item"><strong>1</strong><span>Choose sin, cos or tan</span></div>
+        <div class="form-item"><strong>2</strong><span>Name the unknown side</span></div>
+        <div class="form-item"><strong>3</strong><span>Select a side on the triangle</span></div>
+        <div class="form-item"><strong>4</strong><span>Select the missing angle</span></div>
+        <div class="form-item"><strong>5</strong><span>Match lengths to a diagram</span></div>
+      </div>
+      <button class="primary" id="start" type="button">Start fluency task</button>
+    </section>
+
+    <section class="quiz" id="quiz" aria-live="polite">
+      <div class="progress-line">
+        <span id="progressText">Question 1 of 10</span>
+        <div class="progress-track" aria-hidden="true"><div class="progress-fill" id="progressFill"></div></div>
+        <span id="scoreText">0 correct</span>
+      </div>
+      <div class="question-grid">
+        <div>
+          <div class="question-number" id="formLabel">Form 1</div>
+          <h2 id="prompt"></h2>
+          <p class="instruction" id="instruction"></p>
+          <div class="diagram-frame" id="diagram"></div>
+        </div>
+        <div class="answers">
+          <div id="choices"></div>
+          <div class="feedback" id="feedback" role="status"></div>
+          <div class="next-row">
+            <button class="primary" id="next" type="button" hidden>Next question</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="results" id="results">
+      <div class="question-number">Completed</div>
+      <div class="result-score" id="resultScore">0/10</div>
+      <p id="resultMessage"></p>
+      <div class="breakdown" id="breakdown"></div>
+      <button class="primary" id="restart" type="button">Try another set</button>
+    </section>
+  </main>
+
+  <script>
+    (() => {
+      const FORMS = [
+        "Choose the ratio",
+        "Name the side",
+        "Select the side",
+        "Select the angle",
+        "Match the diagram"
+      ];
+      const POINTS = { L: [74, 226], R: [350, 226], T: [74, 46] };
+      const SIDE_LABELS = {
+        vertical: [45, 139],
+        base: [212, 253],
+        hypotenuse: [226, 119]
+      };
+      const ANGLES = {
+        L: { theta: [108, 207], arc: "M 108 226 A 34 34 0 0 0 90 197" },
+        T: { theta: [94, 79], arc: "M 74 82 A 36 36 0 0 0 103 66" }
+      };
+
+      const state = {
+        questions: [],
+        index: 0,
+        score: 0,
+        answered: false,
+        byForm: [0, 0, 0, 0, 0]
+      };
+
+      const el = (id) => document.getElementById(id);
+      const shuffle = (items) => {
+        const copy = [...items];
+        for (let i = copy.length - 1; i > 0; i -= 1) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [copy[i], copy[j]] = [copy[j], copy[i]];
+        }
+        return copy;
+      };
+      const pick = (items) => items[Math.floor(Math.random() * items.length)];
+
+      function roles(angle) {
+        return angle === "L"
+          ? { opposite: "vertical", adjacent: "base", hypotenuse: "hypotenuse" }
+          : { opposite: "base", adjacent: "vertical", hypotenuse: "hypotenuse" };
+      }
+
+      function ratioFor(a, b) {
+        const pair = new Set([a, b]);
+        if (pair.has("opposite") && pair.has("hypotenuse")) return "sin";
+        if (pair.has("adjacent") && pair.has("hypotenuse")) return "cos";
+        return "tan";
+      }
+
+      function lineFor(side) {
+        if (side === "vertical") return [74, 46, 74, 226];
+        if (side === "base") return [74, 226, 350, 226];
+        return [74, 46, 350, 226];
+      }
+
+      function triangleSvg({ angle = "L", labels = {}, target = null, compact = false } = {}) {
+        const angleData = ANGLES[angle];
+        const targetLine = target ? lineFor(target) : null;
+        const labelMarkup = Object.entries(labels).map(([side, value]) => {
+          const [x, y] = SIDE_LABELS[side];
+          return `<text class="tri-label" x="${x}" y="${y}">${value}</text>`;
+        }).join("");
+        return `
+          <svg class="triangle" viewBox="0 0 420 280" role="img" aria-label="Right-angled triangle${compact ? "" : " with marked sides and angle"}">
+            ${targetLine ? `<line class="tri-target" x1="${targetLine[0]}" y1="${targetLine[1]}" x2="${targetLine[2]}" y2="${targetLine[3]}"></line>` : ""}
+            <path class="tri-side" d="M 74 46 L 74 226 L 350 226 Z"></path>
+            <path class="tri-square" d="M 74 205 L 95 205 L 95 226"></path>
+            <path class="tri-arc" d="${angleData.arc}"></path>
+            <text class="tri-angle" x="${angleData.theta[0]}" y="${angleData.theta[1]}">θ</text>
+            ${labelMarkup}
+          </svg>`;
+      }
+
+      function makeForm1() {
+        const angle = pick(["L", "T"]);
+        const roleMap = roles(angle);
+        const knownRole = pick(["opposite", "adjacent", "hypotenuse"]);
+        const unknownRole = pick(["opposite", "adjacent", "hypotenuse"].filter((r) => r !== knownRole));
+        const labels = {
+          [roleMap[knownRole]]: pick([5, 6, 8, 10, 12]),
+          [roleMap[unknownRole]]: "x"
+        };
+        return {
+          form: 0,
+          prompt: "Which trig ratio should you use?",
+          instruction: "Use the two marked sides. Do not calculate x.",
+          diagram: triangleSvg({ angle, labels }),
+          options: ["sin", "cos", "tan"].map((value) => ({ label: value, value })),
+          answer: ratioFor(knownRole, unknownRole),
+          explanation: `The marked sides are the ${knownRole} and ${unknownRole}, so use ${ratioFor(knownRole, unknownRole)}.`
+        };
+      }
+
+      function makeForm2() {
+        const angle = pick(["L", "T"]);
+        const roleMap = roles(angle);
+        const answer = pick(["opposite", "adjacent", "hypotenuse"]);
+        const labels = { [roleMap[answer]]: "x" };
+        return {
+          form: 1,
+          prompt: "What is the unknown side called?",
+          instruction: "Name side x relative to the marked angle θ.",
+          diagram: triangleSvg({ angle, labels, target: roleMap[answer] }),
+          options: ["opposite", "adjacent", "hypotenuse"].map((value) => ({ label: value, value })),
+          answer,
+          explanation: `Relative to θ, side x is the ${answer}.`
+        };
+      }
+
+      function makeForm3() {
+        const angle = pick(["L", "T"]);
+        const roleMap = roles(angle);
+        const answerRole = pick(["opposite", "adjacent", "hypotenuse"]);
+        const sides = shuffle(["vertical", "base", "hypotenuse"]);
+        return {
+          form: 2,
+          prompt: `Select the ${answerRole} side.`,
+          instruction: "Choose the diagram with the correct side highlighted in red.",
+          diagram: triangleSvg({ angle }),
+          options: sides.map((side) => ({
+            label: triangleSvg({ angle, target: side, compact: true }),
+            value: side,
+            diagram: true,
+            aria: `${side} side highlighted`
+          })),
+          answer: roleMap[answerRole],
+          explanation: `That side is the ${answerRole} relative to θ.`
+        };
+      }
+
+      function makeForm4() {
+        const namedRole = pick(["opposite", "adjacent"]);
+        const namedSide = pick(["vertical", "base"]);
+        const answer = namedRole === "opposite"
+          ? (namedSide === "vertical" ? "L" : "T")
+          : (namedSide === "vertical" ? "T" : "L");
+        const labels = { [namedSide]: namedRole };
+        const optionData = shuffle(["L", "T"]);
+        return {
+          form: 3,
+          prompt: "Where must angle θ be?",
+          instruction: `The labelled side is the ${namedRole}. Select the diagram that places θ correctly.`,
+          diagram: triangleSvg({ labels }),
+          options: optionData.map((angle) => ({
+            label: triangleSvg({ angle, labels, compact: true }),
+            value: angle,
+            diagram: true,
+            aria: `Angle theta at the ${angle === "L" ? "bottom-left" : "top-left"} corner`
+          })),
+          answer,
+          explanation: `From that angle, the labelled side is the ${namedRole}.`
+        };
+      }
+
+      function makeForm5() {
+        const lengths = pick([
+          { opposite: 3, adjacent: 4, hypotenuse: 5 },
+          { opposite: 5, adjacent: 12, hypotenuse: 13 },
+          { opposite: 8, adjacent: 15, hypotenuse: 17 },
+          { opposite: 7, adjacent: 24, hypotenuse: 25 }
+        ]);
+        const correctAngle = pick(["L", "T"]);
+        const correctRoles = roles(correctAngle);
+        const correctLabels = Object.fromEntries(
+          Object.entries(correctRoles).map(([role, side]) => [side, lengths[role]])
+        );
+        const wrongOne = { ...correctLabels };
+        [wrongOne.base, wrongOne.vertical] = [wrongOne.vertical, wrongOne.base];
+        const wrongTwo = { ...correctLabels };
+        [wrongTwo.hypotenuse, wrongTwo.base] = [wrongTwo.base, wrongTwo.hypotenuse];
+        const candidates = shuffle([
+          { value: "correct", svg: triangleSvg({ angle: correctAngle, labels: correctLabels, compact: true }) },
+          { value: "wrong-one", svg: triangleSvg({ angle: correctAngle, labels: wrongOne, compact: true }) },
+          { value: "wrong-two", svg: triangleSvg({ angle: correctAngle, labels: wrongTwo, compact: true }) }
+        ]);
+        return {
+          form: 4,
+          prompt: "Which diagram matches these side lengths?",
+          instruction: `Opposite = ${lengths.opposite}, adjacent = ${lengths.adjacent}, hypotenuse = ${lengths.hypotenuse}.`,
+          diagram: triangleSvg({ angle: correctAngle, labels: { vertical: "?", base: "?", hypotenuse: "?" } }),
+          options: candidates.map((item) => ({
+            label: item.svg,
+            value: item.value,
+            diagram: true,
+            aria: "Triangle diagram answer"
+          })),
+          answer: "correct",
+          explanation: "The hypotenuse is opposite the right angle; opposite and adjacent are named from θ."
+        };
+      }
+
+      const MAKERS = [makeForm1, makeForm2, makeForm3, makeForm4, makeForm5];
+
+      function makeSet() {
+        return shuffle([...MAKERS, ...MAKERS].map((maker) => maker()));
+      }
+
+      function start() {
+        state.questions = makeSet();
+        state.index = 0;
+        state.score = 0;
+        state.answered = false;
+        state.byForm = [0, 0, 0, 0, 0];
+        el("intro").classList.add("is-hidden");
+        el("results").classList.remove("is-active");
+        el("quiz").classList.add("is-active");
+        renderQuestion();
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      }
+
+      function renderQuestion() {
+        const q = state.questions[state.index];
+        state.answered = false;
+        el("progressText").textContent = `Question ${state.index + 1} of ${state.questions.length}`;
+        el("scoreText").textContent = `${state.score} correct`;
+        el("progressFill").style.width = `${(state.index / state.questions.length) * 100}%`;
+        el("formLabel").textContent = `Form ${q.form + 1} · ${FORMS[q.form]}`;
+        el("prompt").textContent = q.prompt;
+        el("instruction").textContent = q.instruction;
+        el("diagram").innerHTML = q.diagram;
+        el("feedback").className = "feedback";
+        el("feedback").innerHTML = "";
+        el("next").hidden = true;
+        el("next").textContent = state.index === state.questions.length - 1 ? "See results" : "Next question";
+
+        const choices = el("choices");
+        choices.innerHTML = "";
+        q.options.forEach((option) => {
+          const button = document.createElement("button");
+          button.type = "button";
+          button.className = `choice${option.diagram ? " diagram-choice" : ""}`;
+          button.dataset.value = option.value;
+          if (option.diagram) {
+            button.innerHTML = option.label;
+            button.setAttribute("aria-label", option.aria);
+          } else {
+            button.textContent = option.label;
+          }
+          button.addEventListener("click", () => answer(button, option.value));
+          choices.appendChild(button);
+        });
+        choices.querySelector("button")?.focus();
+      }
+
+      function answer(button, value) {
+        if (state.answered) return;
+        state.answered = true;
+        const q = state.questions[state.index];
+        const correct = value === q.answer;
+        if (correct) {
+          state.score += 1;
+          state.byForm[q.form] += 1;
+        }
+        el("scoreText").textContent = `${state.score} correct`;
+        [...el("choices").querySelectorAll("button")].forEach((choice) => {
+          choice.disabled = true;
+          if (choice.dataset.value === q.answer) choice.classList.add("is-correct");
+        });
+        if (!correct) button.classList.add("is-wrong");
+        el("feedback").className = `feedback ${correct ? "is-correct" : "is-wrong"}`;
+        el("feedback").innerHTML = `<strong>${correct ? "Correct" : "Not quite"}</strong>${q.explanation}`;
+        el("next").hidden = false;
+        el("next").focus();
+      }
+
+      function next() {
+        if (!state.answered) return;
+        if (state.index < state.questions.length - 1) {
+          state.index += 1;
+          renderQuestion();
+          return;
+        }
+        finish();
+      }
+
+      function finish() {
+        el("quiz").classList.remove("is-active");
+        el("results").classList.add("is-active");
+        el("resultScore").textContent = `${state.score}/${state.questions.length}`;
+        el("resultMessage").textContent = state.score >= 8
+          ? "Strong identification. You are ready to apply the ratios in calculations."
+          : "Repeat the set and use SOH–CAH–TOA only after naming the sides from θ.";
+        el("breakdown").innerHTML = FORMS.map((name, index) =>
+          `<div><span>Form ${index + 1}<br>${name}</span><strong>${state.byForm[index]}/2</strong></div>`
+        ).join("");
+        window.scrollTo({ top: 0, behavior: "smooth" });
+        el("restart").focus();
+      }
+
+      el("start").addEventListener("click", start);
+      el("restart").addEventListener("click", start);
+      el("next").addEventListener("click", next);
+    })();
+  </script>
+</body>
+</html>
