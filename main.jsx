@@ -2,6 +2,10 @@ import React from "react";
 import { createRoot } from "react-dom/client";
 import EquationMinuteLevelTwoWidget from "./equation-minute-level-two-widget.jsx";
 import LinearEquationsWidget from "./linear-equations-widget.jsx";
+import {
+  addNormalDistributionChapter,
+  NORMAL_DISTRIBUTION_STYLE,
+} from "./normal-distribution-chapter.js";
 import { REVISION_HTML, REVISION_STYLE } from "./revision-page-content.js";
 import TriangleMethodWidget from "./triangle-method-widget.jsx";
 import TrigRatioWidget from "./trig-ratio-widget.jsx";
@@ -49,6 +53,8 @@ const INTERACTIVES = [
     Component: TriangleMethodWidget,
   },
 ];
+
+const REVISION_HTML_WITH_CHAPTER_11 = addNormalDistributionChapter(REVISION_HTML);
 
 function getSlugFromHash() {
   return window.location.hash.replace(/^#\/?/, "").trim();
@@ -103,7 +109,7 @@ function Preview({ slug }) {
 }
 
 function Hub() {
-  return <div dangerouslySetInnerHTML={{ __html: REVISION_HTML }} />;
+  return <div dangerouslySetInnerHTML={{ __html: REVISION_HTML_WITH_CHAPTER_11 }} />;
 }
 
 function Player({ interactive }) {
@@ -492,7 +498,7 @@ a {
 }
 
 function RevisionStyle() {
-  return <style>{REVISION_STYLE}</style>;
+  return <style>{`${REVISION_STYLE}\n${NORMAL_DISTRIBUTION_STYLE}`}</style>;
 }
 
 function PlayerStyle() {
@@ -549,7 +555,7 @@ function App() {
   React.useEffect(() => {
     document.title = activeInteractive
       ? `${activeInteractive.title} | Year 12 Revision`
-      : "Revision Hub: Chapters 3, 6 and 8";
+      : "Revision Hub: Chapters 3, 6, 8 and 11";
   }, [activeInteractive]);
 
   React.useEffect(() => {
