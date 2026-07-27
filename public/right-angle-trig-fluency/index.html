@@ -586,7 +586,7 @@
         hypotenuse: [226, 119]
       };
       const ANGLES = {
-        L: { theta: [108, 207], arc: "M 108 226 A 34 34 0 0 0 90 197" },
+        L: { theta: [308, 213], arc: "M 316 226 A 34 34 0 0 1 322 207" },
         T: { theta: [94, 79], arc: "M 74 82 A 36 36 0 0 0 103 66" }
       };
 
@@ -727,7 +727,7 @@
             label: triangleSvg({ angle, labels, compact: true }),
             value: angle,
             diagram: true,
-            aria: `Angle theta at the ${angle === "L" ? "bottom-left" : "top-left"} corner`
+            aria: `Angle theta at the ${angle === "L" ? "bottom-right" : "top-left"} corner`
           })),
           answer
         };
