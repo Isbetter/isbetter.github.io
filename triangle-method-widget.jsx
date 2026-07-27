@@ -20,6 +20,7 @@ const C = {
 };
 
 const RUN_MS = 120000;
+const FEEDBACK_MS = 750;
 
 const METHOD_OPTIONS = [
   {
@@ -713,27 +714,16 @@ function MethodOptions({ selected, result, onSelect }) {
   );
 }
 
-function Feedback({ result }) {
-  if (!result) return null;
-
-  return (
-    <div className={`tm-feedback ${result.correct ? "is-correct" : "is-miss"}`}>
-      <div>
-        <span>{result.correct ? "Correct" : "Incorrect"}</span>
-        <strong>{result.expectedName}</strong>
-      </div>
-      <p>{result.explanation}</p>
-    </div>
-  );
-}
-
 function ReviewRow({ item, index }) {
   return (
     <div className={`tm-review-row ${item.correct ? "is-correct" : "is-miss"}`}>
       <div className="tm-review-number">{index + 1}</div>
       <div className="tm-review-main">
         <div className="tm-review-question">{item.question}</div>
-        <div className="tm-review-kind">{item.kind}</div>
+        <div className="tm-review-kind">
+          {item.correct ? "Correct" : "Incorrect"} · {item.kind}
+        </div>
+        <p className="tm-review-feedback">{item.explanation}</p>
       </div>
       <div className="tm-review-values">
         <span>
@@ -860,14 +850,6 @@ function WidgetStyle() {
   min-width: 210px;
   background: var(--red);
   box-shadow: 4px 4px 0 var(--ink);
-}
-
-.tm-button.submit {
-  width: 100%;
-  margin-top: 14px;
-  background: var(--ink);
-  color: var(--card);
-  box-shadow: 4px 4px 0 var(--gold);
 }
 
 .tm-button.secondary {
@@ -1236,54 +1218,27 @@ function WidgetStyle() {
   margin: 2px 0;
 }
 
-.tm-feedback {
-  display: grid;
-  gap: 8px;
-  margin-top: 12px;
-  padding: 12px;
-  border: 2px solid var(--feedback-color);
-  border-radius: 6px;
-  background: var(--feedback-bg);
-  animation: tm-popIn 250ms cubic-bezier(.2,.8,.2,1);
-}
-
-.tm-feedback.is-correct {
-  --feedback-color: var(--green);
-  --feedback-bg: var(--green-tint);
-}
-
-.tm-feedback.is-miss {
-  --feedback-color: var(--red-deep);
-  --feedback-bg: var(--red-tint);
-}
-
-.tm-feedback div {
+.tm-choice-status {
+  min-height: 30px;
   display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: 12px;
-}
-
-.tm-feedback span {
-  color: var(--ink-soft);
-  font-size: 13px;
-  font-weight: 700;
-}
-
-.tm-feedback strong {
-  color: var(--feedback-color);
+  align-items: center;
+  margin-top: 10px;
+  color: var(--status-color);
   font-family: "JetBrains Mono", ui-monospace, monospace;
-  font-size: 15px;
+  font-size: 14px;
   font-weight: 800;
-  text-align: right;
 }
 
-.tm-feedback p {
-  margin: 0;
-  color: var(--ink);
-  font-size: 13px;
-  line-height: 1.4;
-  font-weight: 700;
+.tm-choice-status.is-empty {
+  visibility: hidden;
+}
+
+.tm-choice-status.is-correct {
+  --status-color: var(--green);
+}
+
+.tm-choice-status.is-miss {
+  --status-color: var(--red-deep);
 }
 
 .tm-review {
@@ -1382,6 +1337,14 @@ function WidgetStyle() {
   font-weight: 700;
 }
 
+.tm-review-feedback {
+  margin: 8px 0 0;
+  color: var(--ink);
+  font-size: 13px;
+  line-height: 1.4;
+  font-weight: 700;
+}
+
 .tm-review-values {
   display: grid;
   gap: 6px;
@@ -1469,16 +1432,6 @@ function WidgetStyle() {
     grid-template-columns: 1fr;
   }
 
-  .tm-feedback div {
-    display: block;
-  }
-
-  .tm-feedback strong {
-    display: block;
-    margin-top: 5px;
-    text-align: left;
-  }
-
   .tm-review-row {
     grid-template-columns: 36px minmax(0, 1fr);
   }
@@ -1508,6 +1461,7 @@ export function TriangleMethodWidget() {
   const [totalAttempts, setTotalAttempts] = useState(0);
   const [lastWasBest, setLastWasBest] = useState(false);
   const startRef = useRef(0);
+  const advanceRef = useRef(null);
 
   const q = question;
   const isRunning = phase === "running";
@@ -1515,7 +1469,15 @@ export function TriangleMethodWidget() {
   const remainingMs = Math.max(0, RUN_MS - elapsed);
   const answered = history.length;
 
+  const clearAdvance = () => {
+    if (advanceRef.current) {
+      clearTimeout(advanceRef.current);
+      advanceRef.current = null;
+    }
+  };
+
   const finishRun = (score = currentCorrect, entries = history) => {
+    clearAdvance();
     const summary = `${score} in 2:00`;
     const isNewBest = bestTimed == null || score > bestTimed;
     if (isNewBest) setBestTimed(score);
@@ -1523,10 +1485,12 @@ export function TriangleMethodWidget() {
     setLastWasBest(isNewBest);
     setReview(entries);
     setElapsed(RUN_MS);
-    setResult(null);
     setSelected(null);
+    setResult(null);
     setPhase("review");
   };
+
+  useEffect(() => () => clearAdvance(), []);
 
   useEffect(() => {
     if (phase !== "running") return undefined;
@@ -1545,6 +1509,7 @@ export function TriangleMethodWidget() {
   }, [phase, currentCorrect, history, bestTimed]);
 
   const start = () => {
+    clearAdvance();
     const next = drawQuestion([]);
     setQuestion(next.question);
     setQueue(next.queue);
@@ -1562,6 +1527,7 @@ export function TriangleMethodWidget() {
   };
 
   const goHome = () => {
+    clearAdvance();
     setPhase("home");
     setQuestion(null);
     setSelected(null);
@@ -1576,21 +1542,21 @@ export function TriangleMethodWidget() {
     setResult(null);
   };
 
-  const submit = () => {
-    if (!q || !selected || result) return;
+  const answer = (selectedId) => {
+    if (!q || result) return;
     if (performance.now() - startRef.current >= RUN_MS) {
       finishRun(currentCorrect, history);
       return;
     }
 
-    const selectedMethod = METHOD_BY_ID[selected];
+    const selectedMethod = METHOD_BY_ID[selectedId];
     const expectedMethod = METHOD_BY_ID[q.method];
-    const correct = selected === q.method;
+    const correct = selectedId === q.method;
     const entry = {
       id: q.id,
       question: makeReviewQuestion(q),
       kind: q.tag,
-      selectedId: selected,
+      selectedId,
       selectedName: selectedMethod.name,
       expectedId: q.method,
       expectedName: expectedMethod.name,
@@ -1602,15 +1568,26 @@ export function TriangleMethodWidget() {
     const nextCorrect = currentCorrect + (correct ? 1 : 0);
     const nextMisses = currentMisses + (correct ? 0 : 1);
 
+    setSelected(selectedId);
+    setResult(entry);
     setHistory(nextHistory);
     setCurrentCorrect(nextCorrect);
     setCurrentMisses(nextMisses);
     if (correct) setTotalCorrect((count) => count + 1);
-    setResult(entry);
-  };
 
-  const continueRun = () => {
-    moveToNextQuestion();
+    if (performance.now() - startRef.current >= RUN_MS) {
+      finishRun(nextCorrect, nextHistory);
+      return;
+    }
+
+    advanceRef.current = setTimeout(() => {
+      advanceRef.current = null;
+      if (performance.now() - startRef.current >= RUN_MS) {
+        finishRun(nextCorrect, nextHistory);
+        return;
+      }
+      moveToNextQuestion();
+    }, FEEDBACK_MS);
   };
 
   const vars = {
@@ -1694,23 +1671,15 @@ export function TriangleMethodWidget() {
                   <p className="tm-hint">Select the formula you would apply before calculating.</p>
                 </div>
 
-                <MethodOptions selected={selected} result={result} onSelect={setSelected} />
-                <Feedback result={result} />
+                <MethodOptions selected={selected} result={result} onSelect={answer} />
 
-                {result ? (
-                  <button type="button" className="tm-button submit" onClick={continueRun}>
-                    Next
-                  </button>
-                ) : (
-                  <button
-                    type="button"
-                    className="tm-button submit"
-                    onClick={submit}
-                    disabled={!selected}
-                  >
-                    Submit
-                  </button>
-                )}
+                <div
+                  className={`tm-choice-status ${result ? (result.correct ? "is-correct" : "is-miss") : "is-empty"}`}
+                  role="status"
+                  aria-live="polite"
+                >
+                  {result ? (result.correct ? "Correct" : "Incorrect") : ""}
+                </div>
 
                 <button type="button" className="tm-button link" onClick={() => finishRun(currentCorrect, history)}>
                   End and review
@@ -1747,7 +1716,7 @@ export function TriangleMethodWidget() {
                 ))}
               </div>
             ) : (
-              <p className="tm-empty-review">No submitted answers in this run.</p>
+              <p className="tm-empty-review">No answers in this run.</p>
             )}
           </section>
         )}
